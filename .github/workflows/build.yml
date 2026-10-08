@@ -1,0 +1,62 @@
+name: build
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write # needed for the tag-release step
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Publish single-file exe
+        shell: pwsh
+        run: |
+          dotnet publish ServerHop.csproj `
+            -c Release -r win-x64 --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -o publish
+
+      - name: Self-test (7-point check, live probes WARN-tolerant)
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath publish/ServerHop.exe -ArgumentList "--selftest" `
+               -Wait -PassThru `
+               -RedirectStandardOutput selftest.log `
+               -RedirectStandardError  selftest.err
+          Get-Content selftest.log
+          if (Test-Path selftest.err) { Get-Content selftest.err }
+          if ($p.ExitCode -ne 0) { Write-Error "self-test failed"; exit 1 }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ServerHop
+          path: publish/ServerHop.exe
+          if-no-files-found: error
+
+      - name: Attach exe to GitHub Release (on v* tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" publish/ServerHop.exe `
+            --repo "${{ github.repository }}" `
+            --title "SERVERHOP ${{ github.ref_name }}" `
+            --generate-notes `
+            --verify-tag

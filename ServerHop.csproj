@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ServerHop</RootNamespace>
+    <AssemblyName>ServerHop</AssemblyName>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <Product>SERVERHOP</Product>
+    <AssemblyTitle>SERVERHOP - Roblox Server Picker</AssemblyTitle>
+    <Description>Single-exe Windows tool that lists live Roblox servers for any experience (ping, players) and joins the one you pick.</Description>
+    <Company>ServerHop</Company>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugType>embedded</DebugType>
+    <NoWarn>$(NoWarn);SYSLIB0057</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.IO" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\icon.ico" />
+    <Resource Include="Assets\Fonts\*.ttf" />
+  </ItemGroup>
+
+</Project>
